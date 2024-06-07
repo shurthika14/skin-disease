@@ -3,7 +3,6 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 import io
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 import av
 import importlib
 import cv2  # Ensure you import cv2 for the cv2.putText function
@@ -14,9 +13,6 @@ st.set_page_config(
     initial_sidebar_state="auto"
 )
 
-class VideoTransformer(VideoTransformerBase):
-    def __init__(self, model):
-        self.model = model
 
     def transform(self, frame):
         img = frame.to_ndarray(format="bgr24")
@@ -66,13 +62,6 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
-
-# Initialize session state for video transformer
-if 'video_transformer' not in st.session_state:
-    if trained_model:
-        st.session_state.video_transformer = VideoTransformer(trained_model)
-    else:
-        st.session_state.video_transformer = None
 
 # Initialize session state for prediction result
 if 'prediction_result' not in st.session_state:
@@ -165,8 +154,31 @@ elif app_mode == "Disease Recognition":
 
     elif input_method == "Live Camera":
         if trained_model:
-            webrtc_ctx = webrtc_streamer(key="example", video_transformer_factory=lambda: st.session_state.video_transformer)
-            if webrtc_ctx and webrtc_ctx.video_transformer:
-                st.write("Using live camera input for prediction")
+            # Setup capture
+            cap = cv2.VideoCapture(0)
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                
+                # Predict skin disease
+                result_text, confidence = predict_skin_disease(frame, model)
+                
+                # Draw the prediction result on the frame
+                cv2.putText(frame, result_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                
+                # Display the frame with prediction
+                cv2.imshow('Skin Disease Detection', cv2.resize(frame, (800, 600)))
+                
+                # Break the loop on 'q' key press
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+            
+            # Release the capture and close the window
+            cap.release()
+            cv2.destroyAllWindows()
         else:
             st.error("Model not loaded. Please check the model file.")
