@@ -6,6 +6,7 @@ import io
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 import av
 import importlib
+import cv2  # Ensure you import cv2 for the cv2.putText function
 
 st.set_page_config(
     page_title="Detection System",
@@ -33,7 +34,6 @@ class VideoTransformer(VideoTransformerBase):
         img = cv2.putText(img, result_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
         return av.VideoFrame.from_ndarray(img, format='bgr24')
 
-# Tensorflow model prediction
 def model_prediction(input_image, model):
     try:
         image = Image.open(io.BytesIO(input_image.read()))  # Read the content as bytes
