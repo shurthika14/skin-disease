@@ -13,23 +13,6 @@ st.set_page_config(
     initial_sidebar_state="auto"
 )
 
-
-    def transform(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-        img = Image.fromarray(img)
-        img = img.resize((128, 128))
-        input_arr = tf.keras.preprocessing.image.img_to_array(img)
-        input_arr = np.array([input_arr])
-        predictions = self.model.predict(input_arr)
-        result_index = np.argmax(predictions)
-        confidence = predictions[0][result_index] * 100
-
-        class_name = ['Acne', 'Eczema', 'Melanoma', 'Normal']
-        result_text = f'{class_name[result_index]}: {confidence:.2f}%'
-        img = np.array(img)
-        img = cv2.putText(img, result_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-        return av.VideoFrame.from_ndarray(img, format='bgr24')
-
 def model_prediction(input_image, model):
     try:
         image = Image.open(io.BytesIO(input_image.read()))  # Read the content as bytes
