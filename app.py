@@ -6,6 +6,7 @@ import io
 import importlib
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 import av
+import cv2  # Ensure you import cv2 for the cv2.putText function
 
 st.set_page_config(
     page_title="Detection System",
@@ -75,6 +76,7 @@ if 'prediction_result' not in st.session_state:
 # Initialize session state for video transformer
 if 'video_transformer' not in st.session_state:
     st.session_state.video_transformer = VideoTransformer(trained_model)
+    st.write("Initialized video_transformer in session state")  # Debug print
 
 # Sidebar
 st.sidebar.title("Dashboard")
@@ -162,7 +164,9 @@ elif app_mode == "Disease Recognition":
 
     elif input_method == "Live Camera":
         if trained_model:
+            st.write("Before webrtc_streamer call")  # Debug print
             webrtc_ctx = webrtc_streamer(key="example", video_transformer_factory=lambda: st.session_state.video_transformer)
+            st.write("After webrtc_streamer call")  # Debug print
             if webrtc_ctx and webrtc_ctx.video_transformer:
                 st.write("Using live camera input for prediction")
         else:
