@@ -165,7 +165,7 @@ elif app_mode == "Disease Recognition":
     elif input_method == "Live Camera":
         if trained_model:
             st.write("Before webrtc_streamer call")
-            webrtc_ctx = webrtc_streamer(key="example", video_transformer_factory=lambda: st.session_state.video_transformer)
+            webrtc_ctx = webrtc_streamer(key="skin_disease_detection_camera", video_transformer_factory=lambda: st.session_state.video_transformer)
             st.write("After webrtc_streamer call")
             if webrtc_ctx and webrtc_ctx.video_transformer:
                 st.write("Using live camera input for prediction")
