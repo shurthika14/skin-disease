@@ -3,9 +3,9 @@ import tensorflow as tf
 import numpy as np
 from PIL import Image
 import io
+import importlib
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 import av
-import importlib
 
 st.set_page_config(
     page_title="Detection System",
@@ -67,17 +67,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state for video transformer
-if 'video_transformer' not in st.session_state:
-    if trained_model:
-        st.session_state.video_transformer = VideoTransformer(trained_model)
-    else:
-        st.session_state.video_transformer = None
-
 # Initialize session state for prediction result
 if 'prediction_result' not in st.session_state:
     st.session_state.prediction_result = None
     st.session_state.prediction_confidence = None
+
+# Initialize session state for video transformer
+if 'video_transformer' not in st.session_state:
+    st.session_state.video_transformer = VideoTransformer(trained_model)
 
 # Sidebar
 st.sidebar.title("Dashboard")
