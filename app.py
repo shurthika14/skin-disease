@@ -142,6 +142,21 @@ elif app_mode == "Disease Recognition":
                         st.error("Prediction failed. Please try again.")
                 else:
                     st.error("Model not loaded. Please check the model file.")
+
+                 if st.session_state.prediction_result:
+                 if st.button("Show Information"):
+                     try:
+                        # Dynamically import the module based on the prediction
+                        module = importlib.import_module(st.session_state.prediction_result)
+                        info_content = module.get_info()
+                        st.subheader(f"Information about {st.session_state.prediction_result}")
+                        st.write(info_content)
+                    except ModuleNotFoundError:
+                        st.error(f"Information module for {st.session_state.prediction_result} not found.")
+                    except AttributeError:
+                        st.error(f"Information function not found in the {st.session_state.prediction_result} module.")
+                    except Exception as e:
+                        st.error(f"An error occurred: {e}")
                 
 #elif app_mode == "Disease Recognition":
 #    st.header("Disease Recognition")
@@ -183,12 +198,12 @@ elif app_mode == "Disease Recognition":
              #       except Exception as e:
               #          st.error(f"An error occurred: {e}")
 #
-    elif input_method == "Live Camera":
-        if trained_model:
-           # st.write("Before webrtc_streamer call")
-            webrtc_ctx = webrtc_streamer(key="skin_disease_detection_camera", video_transformer_factory=lambda: st.session_state.video_transformer)
-           # st.write("After webrtc_streamer call")
-            if webrtc_ctx and webrtc_ctx.video_transformer:
-                st.write("Using live camera input for prediction")
-        else:
-            st.error("Model not loaded. Please check the model file.")
+#    elif input_method == "Live Camera":
+ #       if trained_model:
+  #         # st.write("Before webrtc_streamer call")
+   #         webrtc_ctx = webrtc_streamer(key="skin_disease_detection_camera", video_transformer_factory=lambda: st.session_state.video_transformer)
+    #       # st.write("After webrtc_streamer call")
+     #       if webrtc_ctx and webrtc_ctx.video_transformer:
+      #          st.write("Using live camera input for prediction")
+       # else:
+        #    st.error("Model not loaded. Please check the model file.")
