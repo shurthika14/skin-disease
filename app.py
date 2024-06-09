@@ -76,7 +76,7 @@ if 'prediction_result' not in st.session_state:
 # Initialize session state for video transformer
 if 'video_transformer' not in st.session_state:
     st.session_state.video_transformer = VideoTransformer(trained_model)
-    st.write("Initialized video_transformer in session state")
+    #st.write("Initialized video_transformer in session state")
 
 # Sidebar
 st.sidebar.title("Dashboard")
@@ -121,17 +121,13 @@ elif app_mode == "Info":
             st.error(f"Information function not found in the {class_name} module.")
         except Exception as e:
             st.error(f"An error occurred: {e}")
-
 elif app_mode == "Disease Recognition":
     st.header("Disease Recognition")
-    input_method = st.selectbox("Select input method:", ["Upload Image", "Live Camera"])
-    
-    if input_method == "Upload Image":
-        input_image = st.file_uploader("Choose an Image:", type=['jpg', 'png', 'jpeg'])
-        if input_image:
-            st.image(input_image, use_column_width=True)
-            
-            # Predicting Image
+    input_image = st.file_uploader("Choose an Image:", type=['jpg', 'png', 'jpeg'])
+    if input_image:
+        st.image(input_image, use_column_width=True)
+        
+         # Predicting Image
             if st.button("Predict"):
                 st.write("Our Prediction")
                 if trained_model:
@@ -146,27 +142,52 @@ elif app_mode == "Disease Recognition":
                         st.error("Prediction failed. Please try again.")
                 else:
                     st.error("Model not loaded. Please check the model file.")
+                
+#elif app_mode == "Disease Recognition":
+#    st.header("Disease Recognition")
+#    input_method = st.selectbox("Select input method:", ["Upload Image", "Live Camera"])
+    
+#    if input_method == "Upload Image":
+#        input_image = st.file_uploader("Choose an Image:", type=['jpg', 'png', 'jpeg'])
+#        if input_image:
+#            st.image(input_image, use_column_width=True)
+            
+            # Predicting Image
+ #           if st.button("Predict"):
+ #               st.write("Our Prediction")
+  #              if trained_model:
+   #                 result_index, confidence = model_prediction(input_image, trained_model)
+    #                if result_index is not None:
+     #                   class_name = ['Acne', 'Eczema', 'Melanoma', 'Normal']
+      #                  model_predicted = class_name[result_index]
+       #                 st.session_state.prediction_result = model_predicted
+        #                st.session_state.prediction_confidence = confidence
+         #               st.success(f"Model is predicting it's {model_predicted} with {confidence:.2f}% confidence")
+           #         else:
+          #              st.error("Prediction failed. Please try again.")
+            #    else:
+             #       st.error("Model not loaded. Please check the model file.")
 
-            if st.session_state.prediction_result:
-                if st.button("Show Information"):
-                    try:
-                        # Dynamically import the module based on the prediction
-                        module = importlib.import_module(st.session_state.prediction_result)
-                        info_content = module.get_info()
-                        st.subheader(f"Information about {st.session_state.prediction_result}")
-                        st.write(info_content)
-                    except ModuleNotFoundError:
-                        st.error(f"Information module for {st.session_state.prediction_result} not found.")
-                    except AttributeError:
-                        st.error(f"Information function not found in the {st.session_state.prediction_result} module.")
-                    except Exception as e:
-                        st.error(f"An error occurred: {e}")
-
+ #           if st.session_state.prediction_result:
+  #              if st.button("Show Information"):
+   #                 try:
+    #                    # Dynamically import the module based on the prediction
+     #                   module = importlib.import_module(st.session_state.prediction_result)
+      #                  info_content = module.get_info()
+       #                 st.subheader(f"Information about {st.session_state.prediction_result}")
+        #                st.write(info_content)
+         #           except ModuleNotFoundError:
+          #              st.error(f"Information module for {st.session_state.prediction_result} not found.")
+           #         except AttributeError:
+            #            st.error(f"Information function not found in the {st.session_state.prediction_result} module.")
+             #       except Exception as e:
+              #          st.error(f"An error occurred: {e}")
+#
     elif input_method == "Live Camera":
         if trained_model:
-            st.write("Before webrtc_streamer call")
+           # st.write("Before webrtc_streamer call")
             webrtc_ctx = webrtc_streamer(key="skin_disease_detection_camera", video_transformer_factory=lambda: st.session_state.video_transformer)
-            st.write("After webrtc_streamer call")
+           # st.write("After webrtc_streamer call")
             if webrtc_ctx and webrtc_ctx.video_transformer:
                 st.write("Using live camera input for prediction")
         else:
