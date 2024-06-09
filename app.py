@@ -34,15 +34,13 @@ class VideoTransformer(VideoTransformerBase):
         img = cv2.putText(img, result_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
         return av.VideoFrame.from_ndarray(img, format='bgr24')
 
-# Tensorflow model prediction
 def model_prediction(input_image, model):
     try:
-        image = Image.open(io.BytesIO(input_image.read()))  # Read the content as bytes
-        image = image.resize((128, 128))  # Ensure the image is the correct size for the model
+        image = Image.open(io.BytesIO(input_image.read()))
+        image = image.resize((128, 128))
         input_arr = tf.keras.preprocessing.image.img_to_array(image)
-        input_arr = np.array([input_arr])  # Convert single image to batch
+        input_arr = np.array([input_arr])
 
-        # Perform the prediction
         predictions = model.predict(input_arr)
         result_index = np.argmax(predictions)
         confidence = predictions[0][result_index] * 100
@@ -52,7 +50,6 @@ def model_prediction(input_image, model):
         st.error(f"Error in model prediction: {e}")
         return None, None
 
-# Load the trained model
 model_path = "cnn_skin_disease_model.h5"
 try:
     trained_model = tf.keras.models.load_model(model_path)
@@ -68,21 +65,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state for prediction result
 if 'prediction_result' not in st.session_state:
     st.session_state.prediction_result = None
     st.session_state.prediction_confidence = None
 
-# Initialize session state for video transformer
 if 'video_transformer' not in st.session_state:
     st.session_state.video_transformer = VideoTransformer(trained_model)
-    #st.write("Initialized video_transformer in session state")
 
-# Sidebar
 st.sidebar.title("Dashboard")
 app_mode = st.sidebar.selectbox("Select Page", ["Home", "Info", "Disease Recognition"])
 
-# Main Page
 if app_mode == "Home":
     st.header("SKIN DISEASE DETECTION SYSTEM")
     st.markdown("""
@@ -110,7 +102,6 @@ elif app_mode == "Info":
     
     if class_name:
         try:
-            # Dynamically import the module based on the selected class name
             module = importlib.import_module(class_name)
             info_content = module.get_info()
             st.subheader(f"Information about {class_name}")
@@ -121,42 +112,43 @@ elif app_mode == "Info":
             st.error(f"Information function not found in the {class_name} module.")
         except Exception as e:
             st.error(f"An error occurred: {e}")
+
 elif app_mode == "Disease Recognition":
     st.header("Disease Recognition")
     input_image = st.file_uploader("Choose an Image:", type=['jpg', 'png', 'jpeg'])
+    
     if input_image:
         st.image(input_image, use_column_width=True)
         
-         # Predicting Image
-            if st.button("Predict"):
-                st.write("Our Prediction")
-                if trained_model:
-                    result_index, confidence = model_prediction(input_image, trained_model)
-                    if result_index is not None:
-                        class_name = ['Acne', 'Eczema', 'Melanoma', 'Normal']
-                        model_predicted = class_name[result_index]
-                        st.session_state.prediction_result = model_predicted
-                        st.session_state.prediction_confidence = confidence
-                        st.success(f"Model is predicting it's {model_predicted} with {confidence:.2f}% confidence")
-                    else:
-                        st.error("Prediction failed. Please try again.")
+        if st.button("Predict"):
+            st.write("Our Prediction")
+            if trained_model:
+                result_index, confidence = model_prediction(input_image, trained_model)
+                if result_index is not None:
+                    class_name = ['Acne', 'Eczema', 'Melanoma', 'Normal']
+                    model_predicted = class_name[result_index]
+                    st.session_state.prediction_result = model_predicted
+                    st.session_state.prediction_confidence = confidence
+                    st.success(f"Model is predicting it's {model_predicted} with {confidence:.2f}% confidence")
                 else:
-                    st.error("Model not loaded. Please check the model file.")
+                    st.error("Prediction failed. Please try again.")
+            else:
+                st.error("Model not loaded. Please check the model file.")
 
-                 if st.session_state.prediction_result:
-                 if st.button("Show Information"):
-                     try:
-                        # Dynamically import the module based on the prediction
-                        module = importlib.import_module(st.session_state.prediction_result)
-                        info_content = module.get_info()
-                        st.subheader(f"Information about {st.session_state.prediction_result}")
-                        st.write(info_content)
-                    except ModuleNotFoundError:
-                        st.error(f"Information module for {st.session_state.prediction_result} not found.")
-                    except AttributeError:
-                        st.error(f"Information function not found in the {st.session_state.prediction_result} module.")
-                    except Exception as e:
-                        st.error(f"An error occurred: {e}")
+        if st.session_state.prediction_result:
+            if st.button("Show Information"):
+                try:
+                    module = importlib.import_module(st.session_state.prediction_result)
+                    info_content = module.get_info()
+                    st.subheader(f"Information about {st.session_state.prediction_result}")
+                    st.write(info_content)
+                except ModuleNotFoundError:
+                    st.error(f"Information module for {st.session_state.prediction_result} not found.")
+                except AttributeError:
+                    st.error(f"Information function not found in the {st.session_state.prediction_result} module.")
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
+
                 
 #elif app_mode == "Disease Recognition":
 #    st.header("Disease Recognition")
